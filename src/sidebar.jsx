@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import {
   IconButton,
   Typography,
@@ -17,17 +16,11 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 
-function NavbarWithSidebar() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
+function Sidebar() {
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
-
-  const handleLogout = () => {
-    navigate("/login");
-  };
 
   // Sample data for products (replace with your data source)
   const products = [
@@ -38,51 +31,18 @@ function NavbarWithSidebar() {
 
   return (
     <div>
-      {/* Navbar */}
-      <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
-        {/* Hamburger Menu */}
-        <IconButton variant="text" size="lg" onClick={openDrawer}>
-          {isDrawerOpen ? (
-            <XMarkIcon className="h-8 w-8 stroke-2 text-white" />
-          ) : (
-            <Bars3Icon className="h-8 w-8 stroke-2 text-white" />
-          )}
-        </IconButton>
-
-        {/* Logo */}
-        <div className="text-lg font-bold">Logo</div>
-
-        {/* Profile Menu */}
-        <div className="relative">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="focus:outline-none"
-          >
-            <img
-              src="https://via.placeholder.com/30" // Replace with your account icon
-              alt="Account"
-              className="w-8 h-8 rounded-full"
-            />
-          </button>
-          {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg">
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-              >
-                Log Out
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      {/* Sidebar */}
+      <IconButton variant="text" size="lg" onClick={openDrawer}>
+        {isDrawerOpen ? (
+          <XMarkIcon className="h-8 w-8 stroke-2" />
+        ) : (
+          <Bars3Icon className="h-8 w-8 stroke-2" />
+        )}
+      </IconButton>
       <Drawer open={isDrawerOpen} onClose={closeDrawer}>
         <Card
           color="transparent"
           shadow={false}
-          className="h-full w-full p-4"
+          className="h-[calc(100vh-2rem)] w-full p-4"
         >
           <div className="mb-2 flex items-center gap-4 p-4">
             <Typography variant="h5" color="blue-gray">
@@ -125,4 +85,4 @@ function NavbarWithSidebar() {
   );
 }
 
-export default NavbarWithSidebar;
+export default Sidebar;

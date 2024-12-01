@@ -2,17 +2,18 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './login'; 
 import Register from './register'; 
 import Home from './home'; 
+import Output from './output';
 import Navbar from './navbar';
+
 // import BangkitBG from './assets/BangkitBG.png';
 
 function App() {
   const location = useLocation();
   return (
     <div
-      className='text-white h-screen flex flex-col bg-contain bg-center bg-no-repeat bg-black w-full'
+      className='text-black flex flex-col bg-contain bg-center bg-no-repeat w-full my-auto min-h-screen'
       // style={{ backgroundImage: `url(${BangkitBG})` }}
     >
-      {/* Conditionally render Navbar based on the current route */}
       {location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && <Navbar />}
       
       <div className="flex-grow flex justify-center items-center">
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/output" element={<Output />} />
         </Routes>
       </div>
     </div>
