@@ -8,7 +8,6 @@ function Output() {
   const [successMetrics, setSuccessMetrics] = useState([]);
   const [userStories, setUserStories] = useState([]);
   const [projectTimeline, setProjectTimeline] = useState([]);
-  const [showButtons, setShowButtons] = useState(true);
 
   const navigate = useNavigate();
 
@@ -89,11 +88,19 @@ function Output() {
   };
 
   const downloadContent = async () => {
-    setShowButtons(false);
+    // Hide buttons by manipulating the DOM directly
+    const buttons = document.querySelectorAll('.actions button');
+    buttons.forEach(button => {
+        button.style.display = 'none';
+    });
 
     const content = document.getElementById("downloadable-content");
+    
+    // Capture the full height of the content
     const canvas = await html2canvas(content, {
-      scale: 2,
+        scale: 2,
+        scrollY: -window.scrollY,
+        useCORS: true
     });
 
     const imgData = canvas.toDataURL("image/png");
@@ -102,11 +109,25 @@ function Output() {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("product-requirements-document.pdf");
     
-    setShowButtons(true);
+    let remainingHeight = pdfHeight;
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    
+    while (remainingHeight > pageHeight) {
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, -(remainingHeight - pageHeight), pdfWidth, pdfHeight);
+        remainingHeight -= pageHeight;
+    }
+    
+    pdf.save("product-requirements-document.pdf");
+
+    // Restore buttons after the PDF is generated
+    buttons.forEach(button => {
+        button.style.display = '';
+    });
+
     navigate("/home");
-  };
+};
 
   return (
     <div id="downloadable-content" className="container w-11/12 mx-auto text-center p-4">
@@ -221,14 +242,14 @@ function Output() {
             ))}
           </tbody>
         </table>
-        {showButtons && (
-          <button
+        <div className="actions">
+        <button
             onClick={addProjectTimelineRow}
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded actions"
           >
             Add Row
           </button>
-        )}
+        </div>
       </div>
 
       <div className="successMetric mb-4">
@@ -253,14 +274,14 @@ function Output() {
             ))}
           </tbody>
         </table>
-        {showButtons && (
-          <button
+        <div className="actions">
+        <button
             onClick={addSuccessMetricRow}
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded actions"
           >
             Add Row
           </button>
-        )}
+        </div>
       </div>
 
       <div className="userStories mb-4">
@@ -289,8 +310,7 @@ function Output() {
             ))}
           </tbody>
         </table>
-        {showButtons && (
-          <div>
+          <div className="actions">
             <button
               onClick={addUserStoryRow}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
@@ -298,26 +318,23 @@ function Output() {
               Add Row
             </button>
           </div>
-        )}
       </div>
 
       <div className="container">
-      {showButtons && (
-        <div className="actions mt-4">
-          <button
+    <div className="actions mt-4">
+        <button
             onClick={deleteContent}
             className="px-4 py-2 bg-red-500 text-white rounded mr-2"
-          >
+        >
             Delete
-          </button>
-          <button
+        </button>
+        <button
             onClick={downloadContent}
             className="px-4 py-2 bg-green-500 text-white rounded"
-          >
+        >
             Download
-          </button>
-        </div>
-      )}
+        </button>
+    </div>
         </div>
     </div>
   );
