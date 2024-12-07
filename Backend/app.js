@@ -13,7 +13,10 @@ dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL || '*', // Replace with your frontend URL for production
+    credentials: true,
+}));
 
 // Routing
 app.use('/api/v1/auth', AuthRouter);
@@ -24,7 +27,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Server
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log(`Server berjalan di port ${port}`);
 })
