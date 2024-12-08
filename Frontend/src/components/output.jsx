@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { useNavigate } from "react-router-dom";
 import html2canvas from "html2canvas";
-import inputData from './input/input.json';
+import inputData from './../input/input.json';
 
 function Output() {
   const [successMetrics, setSuccessMetrics] = useState([]);

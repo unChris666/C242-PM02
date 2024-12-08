@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import axios from 'axios';
 
 function Home() {
   const navigate = useNavigate();
+  const { user, loading } = useUser();
   const [formData, setFormData] = useState({
     productName: '',
     documentOwner: '',
@@ -52,6 +55,29 @@ function Home() {
       navigate('/output', { state: { formData } });
     }
   };
+
+  // Fetch user data when the component mounts
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!loading && user) {
+        try {
+          const token = localStorage.getItem('token'); // Adjust based on where you store your token
+          const response = await axios.get('http://localhost:3000/api/v1/auth/me', {
+            withCredentials: true, // Send cookies
+            headers: {
+              Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+            },
+          });
+          console.log('User data:', response.data);
+        } catch (error) {
+          console.error('Error fetching user data:', error.response || error.message);
+        }
+      }
+    };
+  
+    fetchUserData();
+  }, [loading, user]);
+  
 
   return (
     <div className="w-full bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 text-black">

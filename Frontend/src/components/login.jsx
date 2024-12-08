@@ -1,21 +1,57 @@
-import { useState } from 'react';
+import { useEffect, useState} from 'react';
 import { BiUser  } from 'react-icons/bi';
 import { AiOutlineUnlock } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useUser  } from '../context/UserContext';
+
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const { login } = useUser();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const isFilled = username && password; // Check if both fields are filled
+  const [message, setMessage] = useState('');
+  const isFilled = email && password; // Check if both fields are filled
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Instead of alert, you might want to handle login logic here
-    alert(`Welcome, ${username}!`);
-    navigate('/home'); // Redirect to home page
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/v1/auth/login',
+        { email, password },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setMessage('Login successful!');
+      login(response.data.token); // Simpan token ke context atau state global
+      navigate('/home'); // Redirect to home page
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setMessage(error.response?.data?.message || 'Login failed. Please try again.');
+    }
   };
+
+  const checkUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/v1/auth/me', {
+        withCredentials: true,
+      });
+      login(response.data.token); // Jika user sudah login, simpan token
+      navigate('/home'); // Redirect langsung ke home
+    } catch (error) {
+      console.error('User not logged in:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkUser();
+  }, []);
 
   return (
     <div className="bg-slate-800 border border-slate-400 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-25 relative w-1/3 mx-auto my-auto text-black">
@@ -24,19 +60,19 @@ const Login = () => {
         {/* Username */}
         <div className="relative my-4">
         <label
-            htmlFor="username"
+            htmlFor="email"
             className={`absolute text-xl duration-300 transform ${
-              username ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
+              email ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
             } left-0 text-black`}
           >
-            Username:
+            Email:
           </label>
           <input
             type="text"
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)} // Update username state
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)} // Update username state
             className="block w-full py-3 px-0 text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600"
             required // Mark as required
           />
@@ -80,6 +116,9 @@ const Login = () => {
         <div className="my-4">
           <span>
             New here? <Link to="/register" className="text-blue-500">Register</Link>
+          </span>
+          <span>
+          {message && <p>{message}</p>}
           </span>
         </div>
       </form>

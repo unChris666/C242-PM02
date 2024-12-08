@@ -16,28 +16,44 @@ import {
   XMarkIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import { useUser } from '../context/UserContext';
 
 function NavbarWithSidebar() {
+  const { logout } = useUser();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+        await logout()
+        navigate('/login');
+    } catch (error) {
+        console.error("Error logging out:", error);
+        setMessage(error.response?.data?.message || 'An error occurred');
+    }
+};
 
   // Sample data for products (replace with your data source)
   const products = [
-    { id: 1, name: "Product A", createdAt: "2024-11-30 12:00 PM" },
-    { id: 2, name: "Product B", createdAt: "2024-11-29 10:30 AM" },
-    { id: 3, name: "Product C", createdAt: "2024-11-28 09:45 AM" },
+    { id: 1, name: "Product A", createdAt: "2024-11-30" },
+    { id: 2, name: "Product B", createdAt: "2024-11-29" },
+    { id: 3, name: "Product C", createdAt: "2024-11-28" },
   ]; // Fetch from metadata
 
   return (
     <div>
+      {/* Add this in your JSX, perhaps near the top of the return statement */}
+{message && (
+  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <span className="block sm:inline">{message}</span>
+  </div>
+)}
       {/* Navbar */}
       <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
         {/* Hamburger Menu */}
@@ -66,6 +82,12 @@ function NavbarWithSidebar() {
           </button>
           {isMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg">
+              <button
+                onClick={() => navigate('/profile')} // Navigate to Profile
+                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+              >
+                Profile
+              </button>
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 hover:bg-gray-200"

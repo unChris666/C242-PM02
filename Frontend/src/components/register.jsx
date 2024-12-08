@@ -2,23 +2,68 @@ import { useState } from 'react';
 import { BiUser  } from 'react-icons/bi';
 import { AiOutlineMail, AiOutlineUnlock } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useUser  } from '../context/UserContext';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
+  const { login } = useUser();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const isFilled = username && email && password && confirmPassword; // Check if all fields are filled
-  const isEmailValid = email.includes('@') && email.includes('.'); // Check if email is valid
-  const isPasswordMatch = password === confirmPassword; // Check if password matches confirm password
+  const isFilled = name && email && password && confirmPassword;
+  const isEmailValid = email.includes('@') && email.includes('.');
+  const isPasswordMatch = password === confirmPassword;
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    alert(`Welcome, ${username}! account has been created!`);
-    navigate('/home'); // Redirect to home page
+    if (!isFilled || !isEmailValid || !isPasswordMatch) {
+      setMessage('Please fill all fields correctly.');
+      return;
+    }
+
+    setLoading(true); // Mulai loading
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/v1/auth/register`,
+        {
+          name,
+          email,
+          password,
+          passwordConfirm: confirmPassword, // Pastikan sesuai dengan body yang diminta
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true, // Kirim cookie jika diperlukan
+        }
+      );
+
+      // Tampilkan pesan sukses
+      setMessage('Registration successful!');
+      console.log('Registration response:', response.data);
+
+      // Simpan token dan login
+      login(response.data.token);
+
+      // Redirect ke halaman home
+      navigate('/home');
+    } catch (error) {
+      console.error('Error registering:', error);
+
+      // Tampilkan pesan error
+      const errorMessage =
+        error.response?.data?.message || 'An error occurred during registration.';
+      setMessage(errorMessage);
+    } finally {
+      setLoading(false); // Akhiri loading
+    }
   };
 
   return (
@@ -30,19 +75,20 @@ const Register = () => {
           <label
             htmlFor="username"
             className={`text-xl absolute duration-300 transform ${
-              username ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
+              name ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
             } left-0 text-black`}
           >
             Username:
           </label>
           <input
             type="text"
-            id="username"
+            id="name"
             name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="block w-full py-3 px-0 text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600"
             required
+            disabled={loading}
           />
           <BiUser  className="absolute top-2 right-0 text-white" />
         </div>
@@ -65,6 +111,7 @@ const Register = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="block w-full py-3 px-0 text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600"
             required
+            disabled={loading}
           />
           <AiOutlineMail className="absolute top-2 right-0 text-white" />
         </div>
@@ -87,6 +134,7 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="block w-full py-3 px-0 text-sm text-black bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-black focus:border-blue-600"
             required
+            disabled={loading}
           />
           <AiOutlineUnlock className="absolute top-2 right-0 text-white" />
         </div>
@@ -109,9 +157,13 @@ const Register = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="block w-full py-3 px-0 text-sm text-black` bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-black` focus:border-blue-600"
             required
+            disabled={loading}
           />
           <AiOutlineUnlock className="absolute top-2 right-0 text-white" />
         </div>
+
+        {/* Loading Indicator */}
+        {loading && <p className="text-center text-blue-500">Loading...</p>}
 
         {/* Submit Button */}
         <div className="my-4">
@@ -122,12 +174,15 @@ const Register = () => {
             type="submit"
             disabled={!isFilled || !isEmailValid || !isPasswordMatch} // Disable button if validation fails
           >
-            Register
+            {loading ? 'Submitting...' : 'Register'}
           </button>
         </div>
         <div className="my-4">
           <span>
             Already have an account? <Link to="/login" className="text-blue-500">Login</Link>
+          </span>
+          <span>
+            {message}
           </span>
         </div>
       </form>
