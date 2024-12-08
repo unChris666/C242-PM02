@@ -13,10 +13,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use(cors({
-    origin: process.env.CLIENT_URL || '*', // Replace with your frontend URL for production
-    credentials: true,
-}));
+app.use(cors());
 
 // Routing
 app.use('/api/v1/auth', AuthRouter);
