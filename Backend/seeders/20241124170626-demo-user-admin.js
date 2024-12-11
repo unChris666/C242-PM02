@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 module.exports = {
   async up (queryInterface, Sequelize) {
     const salt = await bcrypt.genSaltSync(10);
-    const adminId = await queryInterface.rawSelect('roles', {
+    const adminId = await queryInterface.rawSelect('Roles', {
       where: {  name: 'Admin' }
     }, ['id']);
     
