@@ -17,10 +17,14 @@ module.exports = {
       {
         id: v4(),
         name: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: v4(),
         name: 'Admin',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]);
   },
