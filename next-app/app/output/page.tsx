@@ -160,34 +160,37 @@ const OutputPage: React.FC = () => {
       {/* Metadata Section */}
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Metadata</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div><strong>Document Version:</strong> {metadata.documentVersion}</div>
-          <div><strong>Product Name:</strong> {metadata.productName}</div>
-          <div><strong>Document Owner:</strong> {metadata.documentOwner}</div>
-          <div><strong>Developer:</strong> {metadata.developer}</div>
-          <div><strong>Stakeholder:</strong> {metadata.stakeholder}</div>
-          <div><strong>Document Stage:</strong> {metadata.documentStage}</div>
-          <div><strong>Created Date:</strong> {metadata.createdDate}</div>
-        </div>
+        <table className="w-full border-2 border-black">
+          <tbody>
+            {Object.entries(metadata).map(([key, value]) => (
+              <tr key={key} className="border border-black">
+                <td className="border border-black p-2 font-medium">
+                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase() })}
+                </td>
+                <td className="border border-black p-2">{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       {/* DARCI Section */}
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">DARCI Table</h2>
-        <table className="w-full border-collapse">
+        <table className="w-full border-2 border-black">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Role</th>
-              <th className="border p-2">Tag</th>
-              <th className="border p-2">Guidelines</th>
+              <th className="border-2 border-black p-2">Role</th>
+              <th className="border-2 border-black p-2">Tag</th>
+              <th className="border-2 border-black p-2">Guidelines</th>
             </tr>
           </thead>
           <tbody>
             {darciTable.map((role, index) => (
               <tr key={index}>
-                <td className="border p-2 font-medium">{role.role}</td>
-                <td className="border p-2">{role.tag}</td>
-                <td className="border p-2">
+                <td className="border-2 border-black p-2 font-medium">{role.role}</td>
+                <td className="border-2 border-black p-2">{role.tag}</td>
+                <td className="border-2 border-black p-2">
                   <ul className="list-disc list-inside">
                     {role.guidelines.map((guideline, guideIndex) => (
                       <li key={guideIndex} className="mb-1">{guideline}</li>
@@ -203,20 +206,20 @@ const OutputPage: React.FC = () => {
       {/* Project Timeline Section */}
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Project Timeline</h2>
-        <table className="w-full border-collapse">
+        <table className="w-full border-2 border-black">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Time Period</th>
-              <th className="border p-2">Activity</th>
-              <th className="border p-2">PIC</th>
+              <th className="border-2 border-black p-2">Time Period</th>
+              <th className="border-2 border-black p-2">Activity</th>
+              <th className="border-2 border-black p-2">PIC</th>
             </tr>
           </thead>
           <tbody>
             {projectTimeline.map((item, index) => (
               <tr key={index}>
-                <td className="border p-2">{item.timePeriod}</td>
-                <td className="border p-2">{item.activity}</td>
-                <td className="border p-2">{item.PIC}</td>
+                <td className="border-2 border-black p-2">{item.timePeriod}</td>
+                <td className="border-2 border-black p-2">{item.activity}</td>
+                <td className="border-2 border-black p-2">{item.PIC}</td>
               </tr>
             ))}
           </tbody>
@@ -226,22 +229,22 @@ const OutputPage: React.FC = () => {
       {/* Success Metrics Section */}
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Success Metrics</h2>
-        <table className="w-full border-collapse">
+        <table className="w-full border-2 border-black">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Metric</th>
-              <th className="border p-2">Definition</th>
-              <th className="border p-2">Actual</th>
-              <th className="border p-2">Target</th>
+              <th className="border-2 border-black p-2">Metric</th>
+              <th className="border-2 border-black p-2">Definition</th>
+              <th className="border-2 border-black p-2">Actual</th>
+              <th className="border-2 border-black p-2">Target</th>
             </tr>
           </thead>
           <tbody>
             {successMetrics.map((metric, index) => (
               <tr key={index}>
-                <td className="border p-2">{metric.metric}</td>
-                <td className="border p-2">{metric.definition}</td>
-                <td className="border p-2">{metric.actual}</td>
-                <td className="border p-2">{metric.target}</td>
+                <td className="border-2 border-black p-2">{metric.metric}</td>
+                <td className="border-2 border-black p-2">{metric.definition}</td>
+                <td className="border-2 border-black p-2">{metric.actual}</td>
+                <td className="border-2 border-black p-2">{metric.target}</td>
               </tr>
             ))}
           </tbody>
@@ -251,22 +254,22 @@ const OutputPage: React.FC = () => {
       {/* User Stories Section */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">User Stories</h2>
-        <table className="w-full border-collapse">
+        <table className="w-full border-2 border-black">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Title</th>
-              <th className="border p-2">User Story</th>
-              <th className="border p-2">Acceptance Criteria</th>
-              <th className="border p-2">Priority</th>
+              <th className="border-2 border-black p-2">Title</th>
+              <th className="border-2 border-black p-2">User Story</th>
+              <th className="border-2 border-black p-2">Acceptance Criteria</th>
+              <th className="border-2 border-black p-2">Priority</th>
             </tr>
           </thead>
           <tbody>
             {userStories.map((story, index) => (
               <tr key={index}>
-                <td className="border p-2">{story.title}</td>
-                <td className="border p-2">{story.story}</td>
-                <td className="border p-2">{story.criteria}</td>
-                <td className="border p-2">{story.priority}</td>
+                <td className="border-2 border-black p-2">{story.title}</td>
+                <td className="border-2 border-black p-2">{story.story}</td>
+                <td className="border-2 border-black p-2">{story.criteria}</td>
+                <td className="border-2 border-black p-2">{story.priority}</td>
               </tr>
             ))}
           </tbody>
