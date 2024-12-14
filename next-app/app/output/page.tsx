@@ -1,282 +1,336 @@
-import React from 'react';
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-// Define interfaces for the data structures
-interface Metadata {
-  documentVersion: number;
-  productName: string;
-  documentOwner: string;
-  developer: string;
-  stakeholder: string;
-  documentStage: string;
-  createdDate: string;
-}
+export default function OutputPage() {
+  const router = useRouter();
+  const [metadata, setMetadata] = useState<{ key: string; value: string }[]>([]);
+  const [inputOverview, setInputOverview] = useState<string>('Input Overview not found');
+  const [problemStatement, setProblemStatement] = useState<string>('Problem Statement not found');
+  const [objectives, setObjectives] = useState<string>('Objective not found');
+  const [darciArray, setDarciArray] = useState<{ Role: string; Tag: string; Guidelines: string[] }[]>([]);
+  const [projectTimelineArray, setProjectTimelineArray] = useState<{ TimePeriod: string; Activity: string; PIC: string }[]>([]);
+  const [successMetricsArray, setSuccessMetricsArray] = useState<{ Metric: string; Definition: string; Actual: string; Target: string }[]>([]);
+  const [userStoriesArray, setUserStoriesArray] = useState<{ Title: string; UserStory: string; AcceptanceCriteria: string; Priority: string }[]>([]);
 
-interface DARCIRole {
-    role: string;
-    tag: string;
-    guidelines: string[];
-  }
+  useEffect(() => {
+    const outputText = localStorage.getItem('outputText');
+    // Extract metadata from the output text
+    if (outputText) {
+      const metadataMatch = outputText.match(/"Metadata"\s*:\s*\{([^}]+)\}/);
+      if (metadataMatch) {
+        const metadataText = metadataMatch[1];
+        const regex = /"([^"]+)"\s*:\s*"([^"]*)"|"([^"]+)"\s*:\s*(\d+)/g;
+        const extractedMetadata = [];
+        let match;
 
-interface ProjectTimelineItem {
-  timePeriod: string;
-  activity: string;
-  PIC: string;
-}
+        while ((match = regex.exec(metadataText)) !== null) {
+          const key = match[1] || match[3];
+          const value = match[2] || match[4];
+          extractedMetadata.push({ key, value });
+        }
 
-interface SuccessMetric {
-  metric: string;
-  definition: string;
-  actual: string;
-  target: string;
-}
-
-interface UserStory {
-  title: string;
-  story: string;
-  criteria: string;
-  priority: string;
-}
-
-const OutputPage: React.FC = () => {
-  // Hardcoded data directly in the component
-  const metadata: Metadata = {
-    documentVersion: 4,
-    productName: "Leroy Weiss",
-    documentOwner: "Quos ullamco amet c",
-    developer: "Laborum Maiores in",
-    stakeholder: "Nostrud rem consecte",
-    documentStage: "Tempora ut sunt ips",
-    createdDate: "2024-12-13"
-  };
-
-  const projectTimeline: ProjectTimelineItem[] = [
-    {
-      timePeriod: "2025-March-01 - 2025-March-31",
-      activity: "Planning and Requirements Gathering: During this phase, the team will collaborate with stakeholders to define project objectives, scope, and deliverables.",
-      PIC: "Sophia"
-    },
-    {
-      timePeriod: "2025-April-01 - 2025-April-30",
-      activity: "Design and Prototyping: During this phase, the team will design and develop a functional prototype that meets the project requirements.",
-      PIC: "Frontend Team"
-    },
-    // Add other timeline items from the original document
-  ];
-
-  const successMetrics: SuccessMetric[] = [
-    {
-      metric: "System Performance",
-      definition: "Measures the system's response time and throughput.",
-      actual: "-",
-      target: "Reduce response time by 30% and increase throughput by 25% within the next 6 months."
-    },
-    {
-      metric: "User Engagement",
-      definition: "Measures user interaction and retention rates.",
-      actual: "-",
-      target: "Increase user engagement by 40% and retention rates by 30% within the next 6 months."
-    },
-    // Add other success metrics
-  ];
-
-  const darciTable: DARCIRole[] = [
-    {
-      role: "Decision Maker",
-      tag: "-",
-      guidelines: [
-        "Responsible for making key decisions regarding project scope and timelines.",
-        "Ensures alignment with project objectives and stakeholder expectations.",
-        "Collaborates with the accountable role to define project scope and deliverables.",
-        "Reviews and approves project plans, timelines, and budgets.",
-        "Makes informed decisions based on data-driven insights and stakeholder feedback."
-      ]
-    },
-    {
-      role: "Accountable",
-      tag: "-",
-      guidelines: [
-        "Responsible for ensuring project deliverables meet the required quality and standards.",
-        "Collaborates with the decision maker to define project scope and deliverables.",
-        "Develops and manages project plans, timelines, and budgets.",
-        "Ensures effective communication and stakeholder management.",
-        "Identifies and mitigates project risks and deviations."
-      ]
-    },
-    {
-      role: "Responsible",
-      tag: "-",
-      guidelines: [
-        "Responsible for executing project tasks and delivering high-quality results.",
-        "Collaborates with the accountable role to develop project plans and timelines.",
-        "Develops and maintains project documentation and reports.",
-        "Identifies and reports project risks and deviations to the accountable role.",
-        "Contributes to project meetings and ensures effective communication."
-      ]
-    },
-    {
-      role: "Consulted",
-      tag: "-",
-      guidelines: [
-        "Provides expert input and guidance on specific project aspects.",
-        "Collaborates with the responsible role to develop project plans and timelines.",
-        "Reviews and provides feedback on project documentation and reports.",
-        "Identifies and reports project risks and deviations to the accountable role.",
-        "Contributes to project meetings and ensures effective communication."
-      ]
-    },
-    {
-      role: "Informed",
-      tag: "-",
-      guidelines: [
-        "Receives project updates and progress reports.",
-        "Provides feedback and insights on project aspects.",
-        "Collaborates with the responsible role to develop project plans and timelines.",
-        "Identifies and reports project risks and deviations to the accountable role.",
-        "Contributes to project meetings and ensures effective communication."
-      ]
+        setMetadata(extractedMetadata);
+      } else {
+        setMetadata([{ key: 'Error', value: 'Metadata not found' }]);
+      }
     }
-  ];
+    // Extract Overview
+    if (outputText) {
+      try {
+        const inputOverviewMatch = outputText.match(/"Input Overview":\s*"([^"]+)"/);
+        const problemStatementMatch = outputText.match(/"Problem Statement":\s*{([^}]+)}/);
+        const objectiveMatch = outputText.match(/"Objective":\s*{([^}]+)}/);
 
-  const userStories: UserStory[] = [
-    {
-      title: "Easy Onboarding",
-      story: "As a new user, I want to easily onboard onto the system so that I can quickly start using it.",
-      criteria: "Given the user has access to the system, when the user follows the onboarding process, then the user is successfully onboarded and can access the system's features.",
-      priority: "High"
-    },
-    {
-      title: "Intuitive Interface",
-      story: "As a user, I want an intuitive interface so that I can easily navigate the system.",
-      criteria: "Given the user has access to the system, when the user interacts with the interface, then the user can easily navigate and find the desired features.",
-      priority: "High"
-    },
-    // Add other user stories
-  ];
+        // Extract and process content
+        const inputOverviewText = inputOverviewMatch ? inputOverviewMatch[1] : 'Input Overview not found';
+        const problemStatementText = problemStatementMatch
+          ? problemStatementMatch[1]
+              .replace(/"[^"]+":\s*"/g, '') // Remove keys
+              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          : 'Problem Statement not found';
+
+        const objectivesText = objectiveMatch
+          ? objectiveMatch[1]
+              .replace(/"[^"]+":\s*"/g, '') // Remove keys
+              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          : 'Objective not found';
+
+        setInputOverview(inputOverviewText);
+        setProblemStatement(problemStatementText);
+        setObjectives(objectivesText);
+      } catch (error) {
+        console.error('Error processing data with regex:', error);
+      }
+    }
+    // Extract DARCI Table
+    if (outputText) {
+      try {
+          interface DARCIItem {
+              Role: string;
+              Tag: string;
+              Guidelines: string[];
+          }
+
+          const extractDARCIValues = (role : string): DARCIItem[] => {
+              const darciArray: DARCIItem[] = [];
+              const regex = new RegExp(`"${role}":\\s*{\\s*"Tag":\\s*"([^"]+)",\\s*"Guidelines":\\s*\\[(.*?)\\]\\s*}`, 'gs');
+              let match: RegExpExecArray | null;
+              while ((match = regex.exec(outputText)) !== null) {
+                  const tag = match[1];
+                  const guidelines = match[2].split(/,\s*(?=")/).map(g => g.replace(/"/g, '').trim());
+                  darciArray.push({
+                      Role: role,
+                      Tag: tag,
+                      Guidelines: guidelines
+                  });
+              }
+              return darciArray;
+          };
+
+          const roles = ["Decision Maker", "Accountable", "Responsible", "Consulted", "Informed"];
+          const extractedDarciArray: DARCIItem[] = [];
+
+          roles.forEach(role => {
+              const roleData = extractDARCIValues(role);
+              extractedDarciArray.push(...roleData);
+          });
+
+          setDarciArray(extractedDarciArray);
+          console.log('Updated darciArray:', extractedDarciArray); // Debugging statement
+      } catch (error) {
+          console.error('Error processing DARCI Table data:', error);
+      }
+    }
+    // Extract Project Timeline
+    if (outputText) {
+      const extractValues = (pattern: RegExp): string[] => {
+        const valuesArray: string[] = [];
+        const regex = new RegExp(pattern, 'g');
+        let match: RegExpExecArray | null;
+        while ((match = regex.exec(outputText)) !== null) {
+          valuesArray.push(match[1]);
+        }
+        return valuesArray;
+      };
+
+      const timePeriods = extractValues(/"Time Period":\s*"([^"]+)"/);
+      const activities = extractValues(/"Activity":\s*"([^"]+)"/);
+      const pics = extractValues(/"PIC":\s*"([^"]+)"/);
+
+      const projectTimelineArray = [];
+      for (let i = 0; i < timePeriods.length; i++) {
+        projectTimelineArray.push({
+          TimePeriod: timePeriods[i],
+          Activity: activities[i],
+          PIC: pics[i]
+        });
+      }
+
+      setProjectTimelineArray(projectTimelineArray);
+    }
+    // Extract Success Metrics
+    if (outputText) {
+      const extractMetrics = (pattern: RegExp): string[] => {
+        const metricsArray: string[] = [];
+        const regex = new RegExp(pattern, 'g');
+        let match: RegExpExecArray | null;
+        while ((match = regex.exec(outputText)) !== null) {
+          metricsArray.push(match[1]);
+        }
+        return metricsArray;
+      };
+
+      const metrics = extractMetrics(/"Metric":\s*"([^"]+)"/);
+      const definitions = extractMetrics(/"Definition":\s*"([^"]+)"/);
+      const actuals = extractMetrics(/"Actual":\s*"([^"]+)"/);
+      const targets = extractMetrics(/"Target":\s*"([^"]+)"/);
+
+      const successMetricsArray = [];
+      for (let i = 0; i < metrics.length; i++) {
+        successMetricsArray.push({
+          Metric: metrics[i],
+          Definition: definitions[i],
+          Actual: actuals[i],
+          Target: targets[i]
+        });
+      }
+
+      setSuccessMetricsArray(successMetricsArray);
+    }
+    // Extract User Stories
+    if (outputText) {
+      const extractUserStories = (pattern: RegExp): string[] => {
+        const userStoriesArray: string[] = [];
+        const regex = new RegExp(pattern, 'g');
+        let match: RegExpExecArray | null;
+        while ((match = regex.exec(outputText)) !== null) {
+          userStoriesArray.push(match[1]);
+        }
+        return userStoriesArray;
+      };
+
+      const titles = extractUserStories(/"Title":\s*"([^"]+)"/);
+      const userStories = extractUserStories(/"User Story":\s*"([^"]+)"/);
+      const acceptanceCriteria = extractUserStories(/"Acceptance Criteria":\s*"([^"]+)"/);
+      const priorities = extractUserStories(/"Priority":\s*"([^"]+)"/);
+
+      const userStoriesArray = [];
+      for (let i = 0; i < titles.length; i++) {
+        userStoriesArray.push({
+          Title: titles[i],
+          UserStory: userStories[i],
+          AcceptanceCriteria: acceptanceCriteria[i],
+          Priority: priorities[i]
+        });
+      }
+
+      setUserStoriesArray(userStoriesArray);
+    }
+  }, []);
+
 
   return (
-    <div className="container mx-auto p-6 bg-white text-black">
-      <h1 className="text-4xl font-bold text-center mb-8">Product Requirements Document</h1>
+    <div id="downloadable-content" className="container w-11/12 mx-auto text-center p-4 bg-white">
+      <div className="header mb-4">
+        <h1 className="text-black text-4xl font-black text-center">
+          Product Requirements Document
+        </h1>
+      </div>
 
-      {/* Metadata Section */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Metadata</h2>
-        <table className="w-full border-2 border-black">
+      {/* Metadata */}
+      <div className="metadata mb-4 text-black">
+        <table className="table-auto mx-auto border-2 border-black w-1/2">
           <tbody>
-            {Object.entries(metadata).map(([key, value]) => (
-              <tr key={key} className="border border-black">
-                <td className="border border-black p-2 font-medium">
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase() })}
+            {metadata.map((item, index) => (
+              <tr key={index}>
+                <td className="border border-black px-4 py-2">{item.key}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>
+                  {item.value}
                 </td>
-                <td className="border border-black p-2">{value}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
+      </div>
 
-      {/* DARCI Section */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">DARCI Table</h2>
-        <table className="w-full border-2 border-black">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border-2 border-black p-2">Role</th>
-              <th className="border-2 border-black p-2">Tag</th>
-              <th className="border-2 border-black p-2">Guidelines</th>
-            </tr>
-          </thead>
-          <tbody>
-            {darciTable.map((role, index) => (
-              <tr key={index}>
-                <td className="border-2 border-black p-2 font-medium">{role.role}</td>
-                <td className="border-2 border-black p-2">{role.tag}</td>
-                <td className="border-2 border-black p-2">
-                  <ul className="list-disc list-inside">
-                    {role.guidelines.map((guideline, guideIndex) => (
-                      <li key={guideIndex} className="mb-1">{guideline}</li>
+      {/* Overview */}
+      <div className="overview mb-4 text-black">
+        <h2 className="font-bold text-3xl mb-4">Overview</h2>
+        <p id="inputOverview" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
+          {inputOverview}
+        </p>
+        <h3 className="font-bold text-2xl mb-2">Problem Statement</h3>
+        <p id="problemStatement" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
+          {problemStatement}
+        </p>
+        <h3 className="font-bold text-2xl mb-2"> Objective</h3>
+        <p id="objectives" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
+          {objectives}
+        </p>
+      </div>
+
+      {/* DARCI Table */}
+      <div className="darci-table mb-4 text-black">
+            <h2 className="font-bold text-3xl mb-4">DARCI Table</h2>
+            <table className="table-auto mx-auto border-2 border-black w-5/6">
+                <thead>
+                    <tr>
+                        <th className="border border-black px-4 py-2">Role</th>
+                        <th className="border border-black px-4 py-2">Tag</th>
+                        <th className="border border-black px-4 py-2">Guidelines</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {darciArray.map((item, index) => (
+                        <tr key={index}>
+                            <td className="border border-black px-4 py-2">{item.Role}</td>
+                            <td className="border border-black px-4 py-2">{item.Tag}</td>
+                            <td className="border border-black px-4 py-2">
+                                <ul>
+                                    {item.Guidelines.map((guideline, idx) => (
+                                        <li key={idx}>{guideline}</li>
+                                    ))}
+                                </ul>
+                            </td>
+                        </tr>
                     ))}
-                  </ul>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+                </tbody>
+            </table>
+        </div>
 
-      {/* Project Timeline Section */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Project Timeline</h2>
-        <table className="w-full border-2 border-black">
+      {/* Project Timeline */}
+      <div className="project-timeline mb-4 text-black">
+        <h2 className="font-bold text-3xl mb-4">Project Timeline</h2>
+        <table className="table-auto mx-auto border-2 border-black w-5/6">
           <thead>
-            <tr className="bg-gray-200">
-              <th className="border-2 border-black p-2">Time Period</th>
-              <th className="border-2 border-black p-2">Activity</th>
-              <th className="border-2 border-black p-2">PIC</th>
+            <tr>
+              <th className="border border-black px-4 py-2">Time Period</th>
+              <th className="border border-black px-4 py-2">Activity</th>
+              <th className="border border-black px-4 py-2">PIC</th>
             </tr>
           </thead>
           <tbody>
-            {projectTimeline.map((item, index) => (
+            {projectTimelineArray.map((item, index) => (
               <tr key={index}>
-                <td className="border-2 border-black p-2">{item.timePeriod}</td>
-                <td className="border-2 border-black p-2">{item.activity}</td>
-                <td className="border-2 border-black p-2">{item.PIC}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.TimePeriod}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Activity}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.PIC}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
+      </div>
 
-      {/* Success Metrics Section */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Success Metrics</h2>
-        <table className="w-full border-2 border-black">
+      {/* Success Metrics */}
+      <div className="success-metrics mb-4 text-black">
+        <h2 className="font-bold text-3xl mb-4">Success Metrics</h2>
+        <table className="table-auto mx-auto border-2 border-black w-5/6">
           <thead>
-            <tr className="bg-gray-200">
-              <th className="border-2 border-black p-2">Metric</th>
-              <th className="border-2 border-black p-2">Definition</th>
-              <th className="border-2 border-black p-2">Actual</th>
-              <th className="border-2 border-black p-2">Target</th>
+            <tr>
+              <th className="border border-black px-4 py-2" >Metric</th>
+              <th className="border border-black px-4 py-2" >Definition</th>
+              <th className="border border-black px-4 py-2" >Actual</th>
+              <th className="border border-black px-4 py-2" >Target</th>
             </tr>
           </thead>
           <tbody>
-            {successMetrics.map((metric, index) => (
+            {successMetricsArray.map((item, index) => (
               <tr key={index}>
-                <td className="border-2 border-black p-2">{metric.metric}</td>
-                <td className="border-2 border-black p-2">{metric.definition}</td>
-                <td className="border-2 border-black p-2">{metric.actual}</td>
-                <td className="border-2 border-black p-2">{metric.target}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Metric}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Definition}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Actual}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Target}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
+      </div>
 
-      {/* User Stories Section */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">User Stories</h2>
-        <table className="w-full border-2 border-black">
+      {/* User Stories */}
+      <div className="user-stories mb-4 text-black">
+        <h2 className="font-bold text-3xl mb-4">User  Stories</h2>
+        <table className="table-auto mx-auto border-2 border-black w-5/6">
           <thead>
-            <tr className="bg-gray-200">
-              <th className="border-2 border-black p-2">Title</th>
-              <th className="border-2 border-black p-2">User Story</th>
-              <th className="border-2 border-black p-2">Acceptance Criteria</th>
-              <th className="border-2 border-black p-2">Priority</th>
+            <tr>
+              <th className="border border-black px-4 py-2">Title</th>
+              <th className="border border-black px-4 py-2">User  Story</th>
+              <th className="border border-black px-4 py-2">Acceptance Criteria</th>
+              <th className="border border-black px-4 py-2">Priority</th>
             </tr>
           </thead>
           <tbody>
-            {userStories.map((story, index) => (
+            {userStoriesArray.map((item, index) => (
               <tr key={index}>
-                <td className="border-2 border-black p-2">{story.title}</td>
-                <td className="border-2 border-black p-2">{story.story}</td>
-                <td className="border-2 border-black p-2">{story.criteria}</td>
-                <td className="border-2 border-black p-2">{story.priority}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Title}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.UserStory}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.AcceptanceCriteria}</td>
+                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Priority}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
+      </div>
     </div>
   );
-};
-
-export default OutputPage;
+}

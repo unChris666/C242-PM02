@@ -33,7 +33,7 @@ router.push('/home');
   };
 
   return (
-    <div className="bg-slate-800 border border-slate-400 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-25 relative w-1/3 mx-auto my-auto text-black">
+    <div className="bg-slate-800 border border-slate-400 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-25 relative w-1/3 mx-auto text-black my-10">
       <h1 className="text-4xl font-bold text-center text-black py-4">Login</h1>
       <form onSubmit={handleSubmit}>
         {/* Email */}

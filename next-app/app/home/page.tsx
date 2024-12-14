@@ -65,7 +65,7 @@ function Home() {
           },
         });
 
-        console.log('Response:', response.data.text);
+        console.log('Response:', response.data);
 
         localStorage.setItem('outputText', response.data.text);
 
