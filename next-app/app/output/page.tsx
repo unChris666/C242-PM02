@@ -13,6 +13,35 @@ export default function OutputPage() {
   const [successMetricsArray, setSuccessMetricsArray] = useState<{ Metric: string; Definition: string; Actual: string; Target: string }[]>([]);
   const [userStoriesArray, setUserStoriesArray] = useState<{ Title: string; UserStory: string; AcceptanceCriteria: string; Priority: string }[]>([]);
 
+
+  const addProjectTimelineRow = () => {
+    setProjectTimelineArray([...projectTimelineArray, { TimePeriod: "", Activity: "", PIC: "" }]);
+  };
+  const deleteProjectTimelineLastRow = () => {
+    if (projectTimelineArray.length > 0) {
+        setProjectTimelineArray(projectTimelineArray.slice(0, -1));
+    }
+  };
+
+  const addSuccessMetricsRow = () => {
+    setSuccessMetricsArray([...successMetricsArray, { Metric: "", Definition: "", Actual: "", Target: "" }]);
+  };
+
+  const deleteSuccessMetricsLastRow = () => {
+    if (successMetricsArray.length > 0) {
+        setSuccessMetricsArray(successMetricsArray.slice(0, -1));
+    }
+  };
+
+  const addUserStoriesRow = () => {
+    setUserStoriesArray([...userStoriesArray, { Title: "", UserStory: "", AcceptanceCriteria: "", Priority: "" }]);
+  }
+  const deleteUserStoriesLastRow = () => {
+    if (userStoriesArray.length > 0) {
+        setUserStoriesArray(userStoriesArray.slice(0, -1));
+    }
+  };
+
   useEffect(() => {
     const outputText = localStorage.getItem('outputText');
     // Extract metadata from the output text
@@ -245,11 +274,11 @@ export default function OutputPage() {
                     {darciArray.map((item, index) => (
                         <tr key={index}>
                             <td className="border border-black px-4 py-2">{item.Role}</td>
-                            <td className="border border-black px-4 py-2">{item.Tag}</td>
+                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Tag}</td>
                             <td className="border border-black px-4 py-2">
                                 <ul>
                                     {item.Guidelines.map((guideline, idx) => (
-                                        <li key={idx}>{guideline}</li>
+                                        <li key={idx} contentEditable suppressContentEditableWarning>{guideline}</li>
                                     ))}
                                 </ul>
                             </td>
@@ -261,26 +290,40 @@ export default function OutputPage() {
 
       {/* Project Timeline */}
       <div className="project-timeline mb-4 text-black">
-        <h2 className="font-bold text-3xl mb-4">Project Timeline</h2>
-        <table className="table-auto mx-auto border-2 border-black w-5/6">
-          <thead>
-            <tr>
-              <th className="border border-black px-4 py-2">Time Period</th>
-              <th className="border border-black px-4 py-2">Activity</th>
-              <th className="border border-black px-4 py-2">PIC</th>
-            </tr>
-          </thead>
-          <tbody>
-            {projectTimelineArray.map((item, index) => (
-              <tr key={index}>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.TimePeriod}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Activity}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.PIC}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <h2 className="font-bold text-3xl mb-4">Project Timeline</h2>
+            <table className="table-auto mx-auto border-2 border-black w-5/6">
+                <thead>
+                    <tr>
+                        <th className="border border-black px-4 py-2">Time Period</th>
+                        <th className="border border-black px-4 py-2">Activity</th>
+                        <th className="border border-black px-4 py-2">PIC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {projectTimelineArray.map((item, index) => (
+                        <tr key={index}>
+                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.TimePeriod}</td>
+                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Activity}</td>
+                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.PIC}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="actions mt-4">
+                <button
+                    onClick={addProjectTimelineRow}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Add Row
+                </button>
+                <button
+                    onClick={deleteProjectTimelineLastRow}
+                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                >
+                    Delete Last Row
+                </button>
+            </div>
+        </div>
 
       {/* Success Metrics */}
       <div className="success-metrics mb-4 text-black">
@@ -305,6 +348,20 @@ export default function OutputPage() {
             ))}
           </tbody>
         </table>
+        <div className="actions mt-4">
+                <button
+                    onClick={addSuccessMetricsRow}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Add Row
+                </button>
+                <button
+                    onClick={deleteSuccessMetricsLastRow}
+                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                >
+                    Delete Last Row
+                </button>
+            </div>
       </div>
 
       {/* User Stories */}
@@ -330,6 +387,20 @@ export default function OutputPage() {
             ))}
           </tbody>
         </table>
+        <div className="actions mt-4">
+                <button
+                    onClick={addUserStoriesRow}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Add Row
+                </button>
+                <button
+                    onClick={deleteUserStoriesLastRow}
+                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                >
+                    Delete Last Row
+                </button>
+            </div>
       </div>
     </div>
   );
