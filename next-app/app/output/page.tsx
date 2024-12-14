@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function OutputPage() {
   const router = useRouter();
@@ -13,6 +15,14 @@ export default function OutputPage() {
   const [successMetricsArray, setSuccessMetricsArray] = useState<{ Metric: string; Definition: string; Actual: string; Target: string }[]>([]);
   const [userStoriesArray, setUserStoriesArray] = useState<{ Title: string; UserStory: string; AcceptanceCriteria: string; Priority: string }[]>([]);
 
+  const addDarciRow = () => {
+    setDarciArray([...darciArray, { Role: "", Tag: "", Guidelines: [] }]);
+  };
+  const deleteDarciLastRow = () => {
+    if (darciArray.length > 0) {
+        setDarciArray(darciArray.slice(0, -1));
+    }
+  };
 
   const addProjectTimelineRow = () => {
     setProjectTimelineArray([...projectTimelineArray, { TimePeriod: "", Activity: "", PIC: "" }]);
@@ -41,6 +51,69 @@ export default function OutputPage() {
         setUserStoriesArray(userStoriesArray.slice(0, -1));
     }
   };
+
+  const downloadContent = async () => {
+    // Hide buttons by manipulating the DOM directly
+    const buttons = document.querySelectorAll('.actions button');
+    buttons.forEach(button => {
+      (button as HTMLElement).style.display = 'none';
+    });
+
+    const content = document.getElementById("downloadable-content");
+    
+    // Capture the full height of the content
+    if (content) {
+      const canvas = await html2canvas(content, {
+        scale: 2,
+        scrollY: -window.scrollY,
+        useCORS: true
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      
+      let remainingHeight = pdfHeight;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      while (remainingHeight > pageHeight) {
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, -(remainingHeight - pageHeight), pdfWidth, pdfHeight);
+        remainingHeight -= pageHeight;
+      }
+      
+      pdf.save("product-requirements-document.pdf");
+
+    // Restore buttons after the PDF is generated
+    buttons.forEach(button => {
+      (button as HTMLElement).style.display = '';
+    });
+  }
+  };
+
+  const resetData = () => {
+    // Reset all state variables to their initial values
+    setMetadata([]);
+    setInputOverview('Input Overview not found');
+    setProblemStatement('Problem Statement not found');
+    setObjectives('Objective not found');
+    setDarciArray([]);
+    setProjectTimelineArray([]);
+    setSuccessMetricsArray([]);
+    setUserStoriesArray([]);
+    localStorage.removeItem('outputText');
+
+    // Navigate back to the home page
+    router.push("/home");
+  };
+
+  const returnToHome = () => {
+    router.push("/home");
+  };
+
 
   useEffect(() => {
     const outputText = localStorage.getItem('outputText');
@@ -286,6 +359,20 @@ export default function OutputPage() {
                     ))}
                 </tbody>
             </table>
+            <div className="actions mt-4">
+                <button
+                    onClick={addDarciRow}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Add Row
+                </button>
+                <button
+                    onClick={deleteDarciLastRow}
+                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
+                >
+                    Delete Last Row
+                </button>
+            </div>
         </div>
 
       {/* Project Timeline */}
@@ -401,6 +488,13 @@ export default function OutputPage() {
                     Delete Last Row
                 </button>
             </div>
+      </div>
+
+      {/* Download Button */}
+      <div className="download-button mt-4 actions">
+        <button onClick={downloadContent} className="px-4 py-2 bg-green-500 text-white rounded">Download PDF</button>
+        <button onClick={resetData} className="ml-2 px-4 py-2 bg-orange-500 text-white rounded">Reset Data</button>
+        <button onClick={returnToHome} className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">Return to Home</button>
       </div>
     </div>
   );
