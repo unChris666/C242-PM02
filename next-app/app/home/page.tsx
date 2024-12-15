@@ -87,9 +87,22 @@ function Home() {
     }
   };
 
+  const handleLogout = () => {
+    // For now, just redirect to login page without any logic
+    router.push('/login');
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-8 relative">
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="absolute top-4 right-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+        >
+          Logout
+        </button>
+
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           PRD Document Maker
         </h1>
