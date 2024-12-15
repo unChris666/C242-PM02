@@ -85,22 +85,18 @@ function Home() {
 
   return (
     <div className="w-full bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 text-black">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
-        
+      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-8 shadow-black">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">PRD Document Maker</h1>
-        
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
             {/* Metadata Section */}
             <div className="bg-gray-50 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold text-gray-700 mb-4">Metadata</h2>
-              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Metadata</h2>
+                <div className="space-y-4">
                 
                 {/* Product Name */}
                 <div>
-                  <label htmlFor="productName" className="block text-sm font-medium text-gray-700">Product Name</label>
-                  <input 
+                    <label htmlFor="productName" className="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input 
                     type="text" 
                     id="productName" 
                     name="productName" 
@@ -108,13 +104,13 @@ function Home() {
                     onChange={handleChange}
                     required 
                     className={`mt-1 block w-full ${getBorderClass(formData.productName)} bg-transparent outline-none transition-colors duration-300`}
-                  />
+                    />
                 </div>
 
                 {/* Document Owner */}
                 <div>
-                  <label htmlFor="documentOwner" className="block text-sm font-medium text-gray-700">Document Owner</label>
-                  <input 
+                    <label htmlFor="documentOwner" className="block text-sm font-medium text-gray-700">Document Owner</label>
+                    <input 
                     type="text" 
                     id="documentOwner" 
                     name="documentOwner" 
@@ -122,29 +118,29 @@ function Home() {
                     onChange={handleChange}
                     required 
                     className={`mt-1 block w-full ${getBorderClass(formData.documentOwner)} bg-transparent outline-none transition-colors duration-300`}
-                  />
+                    />
                 </div>
 
                 {/* Developer */}
                 <div>
-                  <label htmlFor="developer" className="block text-sm font-medium text-gray-700">Developer</label>
-                  <textarea 
+                    <label htmlFor="developer" className="block text-sm font-medium text-gray-700">Developer</label>
+                    <textarea 
                     id="developer" 
                     name="developer" 
                     value={formData.developer}
                     onChange={handleChange}
                     required 
                     className={`mt-1 block w-full ${formData.developer === '' 
-                      ? 'border-2 border-black focus:border-blue-500' 
-                      : 'border-2 border-green-500'} bg-transparent outline-none transition-colors duration-300 rounded-lg`}
+                        ? 'border-2 border-black focus:border-blue-500' 
+                        : 'border-2 border-green-500'} bg-transparent outline-none transition-colors duration-300 rounded-lg`}
                     rows={3}
-                  />
+                    />
                 </div>
 
                 {/* Stakeholder */}
                 <div>
-                  <label htmlFor="stakeholder" className="block text-sm font-medium text-gray-700">Stakeholder</label>
-                  <input 
+                    <label htmlFor="stakeholder" className="block text-sm font-medium text-gray-700">Stakeholder</label>
+                    <input 
                     type="text" 
                     id="stakeholder" 
                     name="stakeholder" 
@@ -152,13 +148,13 @@ function Home() {
                     onChange={handleChange}
                     required 
                     className={`mt-1 block w-full ${getBorderClass(formData.stakeholder)} bg-transparent outline-none transition-colors duration-300`}
-                  />
+                    />
                 </div>
 
                 {/* Document Stage */}
                 <div>
-                  <label htmlFor="docStage" className="block text-sm font-medium text-gray-700">Doc Stage</label>
-                  <input 
+                    <label htmlFor="docStage" className="block text-sm font-medium text-gray-700">Doc Stage</label>
+                    <input 
                     type="text" 
                     id="docStage" 
                     name="docStage" 
@@ -166,84 +162,74 @@ function Home() {
                     onChange={handleChange}
                     required 
                     className={`mt-1 block w-full ${getBorderClass(formData.docStage)} bg-transparent outline-none transition-colors duration-300`}
-                  />
+                    />
                 </div>
-
-              </div>
+                </div>
             </div>
 
             {/* Timeline and Overview Section */}
-            <div className="md:col-span-2 bg-gray-50 p-6 rounded-lg">
-              <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Project Timeline</h2>
+                <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-700 mb-4">Project Timeline</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
-                      <input 
-                        type="date" 
-                        id="startDate" 
-                        name="startDate" 
-                        value={formData.startDate}
-                        onChange={handleChange}
-                        required 
-                        className={`mt-1 block w-full ${formData.startDate === '' 
-                          ? 'border-2 border-black' 
-                          : 'border-2 border-green-500'} bg-transparent`}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
-                      <input 
-                        type="date" 
-                        id="endDate" 
-                        name="endDate" 
-                        value={formData.endDate}
-                        onChange={handleChange}
-                        required 
-                        className={`mt-1 block w-full ${formData.endDate === '' 
-                          ? 'border-2 border-black' 
-                          : 'border-2 border-green-500'} bg-transparent`}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-700 mb-4">Overview</h2>
-                  <textarea 
-                    id="overview" 
-                    name="overview" 
-                    value={formData.overview}
+                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input 
+                    type="date" 
+                    id="startDate" 
+                    name="startDate" 
+                    value={formData.startDate}
                     onChange={handleChange}
                     required 
-                    className={`mt-1 block w-full ${formData.overview === '' 
-                      ? 'border-2 border-black focus:border-blue-500' 
-                      : 'border-2 border-green-500'} bg-transparent outline-none transition-colors duration-300 rounded-lg`}
-                    rows={6}
-                    placeholder="Provide a brief overview of the project..."
-                  />
+                    className={`mt-1 block w-full ${formData.startDate === '' 
+                        ? 'border-2 border-black' 
+                        : 'border-2 border-green-500'} bg-transparent`}
+                    />
                 </div>
-              </div>
+                <div>
+                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
+                    <input 
+                    type="date" 
+                    id="endDate" 
+                    name="endDate" 
+                    value={formData.endDate}
+                    onChange={handleChange}
+                    required 
+                    className={`mt-1 block w-full ${formData.endDate === '' 
+                        ? 'border-2 border-black' 
+                        : 'border-2 border-green-500'} bg-transparent`}
+                    />
+                </div>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Overview</h2>
+                <textarea 
+                id="overview" 
+                name="overview" 
+                value={formData.overview}
+                onChange={handleChange}
+                required 
+                className={`mt-1 block w-full ${formData.overview === '' 
+                    ? 'border-2 border-black focus:border-blue-500' 
+                    : 'border-2 border-green-500'} bg-transparent outline-none transition-colors duration-300 rounded-lg`}
+                rows={6}
+                placeholder="Provide a brief overview of the project..."
+                />
             </div>
 
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center">
+            {/* Submit Button */}
+            <div className="text-center">
             <button
-              type="submit"
-              disabled={!isFormValid}
-              className={`w-1/2 py-3 px-6 rounded-md transition-colors duration-300 ${
+                type="submit"
+                disabled={!isFormValid}
+                className={`w-1/2 py-3 px-6 rounded-md transition-colors duration-300 ${
                 isFormValid
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+                    ? 'bg-blue-500 text-white hover:bg-blue-600'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
             >
-              Create PRD
+                Create PRD
             </button>
-          </div>
+            </div>
         </form>
-
       </div>
     </div>
   );
