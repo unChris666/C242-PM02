@@ -41,117 +41,113 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-slate-800 border border-slate-400 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-25 relative w-1/3 mx-auto my-20">
-      <h1 className="text-4xl font-bold text-center text-white py-4">Register</h1>
-      <form onSubmit={handleSubmit}>
-        {/* Username */}
-        <div className="relative my-4">
-          <label
-            htmlFor="username"
-            className={`text-xl absolute duration-300 transform ${
-              username ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
-            } left-0 text-white`}
-          >
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required
-          />
-          <BiUser  className="absolute top-2 right-0 text-white" />
-        </div>
-
-        {/* Email */}
-        <div className="relative my-4">
-          <label
-            htmlFor="email"
-            className={`text-xl absolute duration-300 transform ${
-              email ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
-            } left-0 text-white`}
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required
-          />
-          <AiOutlineMail className="absolute top-2 right-0 text-white" />
-        </div>
-
-        {/* Password */}
-        <div className="relative my-4">
-          <label
-            htmlFor="password"
-            className={`absolute text-xl duration-300 transform ${
-              password ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
-            } left-0 text-white`}
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required
-          />
-          <AiOutlineUnlock className="absolute top-2 right-0 text-white" />
-        </div>
-
-        {/* Confirm Password */}
-        <div className="relative my-4">
-          <label
-            htmlFor="confirmPassword"
-            className={`absolute text-xl duration-300 transform ${
-              confirmPassword ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale -100'
-            } left-0 text-white`}
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required
-          />
-          <AiOutlineUnlock className="absolute top-2 right-0 text-white" />
-        </div>
-
-        {/* Submit Button */}
-        <div className="my-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Register</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Username */}
+          <div className="relative">
+            <label
+              htmlFor="username"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                username ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                email ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Password */}
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                password ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Confirm Password */}
+          <div className="relative">
+            <label
+              htmlFor="confirmPassword"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                confirmPassword ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Submit Button */}
           <button
-            className={`text-white py-2 px-4 rounded-md w-full ${
-              isFilled && isEmailValid && isPasswordMatch ? 'bg-blue-500' : 'bg-gray-500 cursor-not-allowed'
-            } rounded-xl`}
             type="submit"
             disabled={!isFilled || !isEmailValid || !isPasswordMatch}
+            className={`w-full py-2 mt-4 rounded-md text-white font-semibold transition-colors ${
+              isFilled && isEmailValid && isPasswordMatch
+                ? 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Register
           </button>
-        </div>
-        <div className="my-4">
-          <span>
-            Already have an account? <Link href="/login" className="text-blue-500">Login</Link>
-          </span>
-        </div>
-      </form>
+  
+          <div className="text-center mt-4 text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600 hover:underline">
+              Login
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
-  );
+  );  
 };
 
 export default Register;
