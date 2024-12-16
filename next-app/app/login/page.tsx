@@ -16,20 +16,20 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-router.push('/home');
+    
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
 
-    // const result = await signIn('credentials', {
-    //   email,
-    //   password,
-    //   redirect: false,
-    // });
-
-    // if (result?.ok) {
-    //   console.log('Login successful');
-    //   router.push('/home');
-    // } else {
-    //   console.error('Login failed:', result?.error);
-    // }
+    if (result?.ok) {
+      console.log('Login successful');
+      router.push('/home');
+    } else {
+      console.error('Login failed:', result?.error);
+    }
+    
   };
 
   return (

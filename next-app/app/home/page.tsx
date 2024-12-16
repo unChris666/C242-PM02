@@ -42,6 +42,18 @@ function Home() {
     return 'border-b-2 border-green-500';
   };
 
+  const handleLogout = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    
+    const response = await axios.post('http://34.101.174.135:8080/api/v1/auth/logout');
+
+    console.log('Response:', response.data);
+
+    localStorage.removeItem('next-auth.session-token');
+
+    router.push('/login');
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isFormValid) {
@@ -86,7 +98,8 @@ function Home() {
   return (
     <div className="w-full bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 text-black">
       <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg p-8 shadow-black">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">PRD Document Maker</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">PRD Document Maker</h1>
+        <p className="text-center text-gray-600 mb-6">Fill out the form below to generate a PRD document.</p>
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Metadata Section */}
             <div className="bg-gray-50 p-6 rounded-lg">
@@ -228,9 +241,21 @@ function Home() {
             >
                 Create PRD
             </button>
+            
+
             </div>
         </form>
+
+       
       </div>
+      <div className='mx-auto w-1/2 text-center'>
+
+      <button
+                type="button"
+                onClick={() => handleLogout} 
+                className="w-1/2 py-3 px-6 mt-4 rounded-md bg-gray-300 text-gray-500 hover:bg-red-600 hover:text-white mx-auto"
+                >Log out</button>
+                </div>
     </div>
   );
 }

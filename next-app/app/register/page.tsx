@@ -5,6 +5,7 @@ import { BiUser  } from 'react-icons/bi';
 import { AiOutlineMail, AiOutlineUnlock } from 'react-icons/ai';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -17,16 +18,26 @@ const Register = () => {
   const isPasswordMatch = password === confirmPassword; // Check if password matches confirm password
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       console.log('Registering user...');
+
+      const result = await axios.post('http://34.101.174.135:8080/api/v1/auth/register', {
+        "name": username,
+    "email": email,
+    "password": password,
+    "passwordConfirm": confirmPassword
+      });
+
+      console.log('Registration result:', result.data);
+      router.push('/home');
     }
     catch (error) {
       console.error('Registration failed:', error);
     }
+
     
-    router.push('/home');
   };
 
   return (
@@ -128,7 +139,7 @@ const Register = () => {
               isFilled && isEmailValid && isPasswordMatch ? 'bg-blue-500' : 'bg-gray-500 cursor-not-allowed'
             } rounded-xl`}
             type="submit"
-            disabled={!isFilled || !isEmailValid || !isPasswordMatch} // Disable button if validation fails
+            disabled={!isFilled || !isEmailValid || !isPasswordMatch}
           >
             Register
           </button>
