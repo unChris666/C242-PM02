@@ -11,25 +11,26 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const isFilled = email && password;
+  const [message, setMessage] = useState('');
 
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-router.push('/home');
+    
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
 
-    // const result = await signIn('credentials', {
-    //   email,
-    //   password,
-    //   redirect: false,
-    // });
-
-    // if (result?.ok) {
-    //   console.log('Login successful');
-    //   router.push('/home');
-    // } else {
-    //   console.error('Login failed:', result?.error);
-    // }
+    if (result?.ok) {
+      console.log('Login successful');
+      router.push('/home');
+    } else {
+      console.error('Login failed:', result?.error);
+      setMessage(result?.error || 'Login failed');
+    }
   };
 
   return (
@@ -101,6 +102,12 @@ router.push('/home');
             </Link>
           </div>
         </form>
+        {}
+      {message && (
+        <div className="mt-4 text-center text-red-600">
+          {message}
+        </div>
+      )}
       </div>
     </div>
   );  

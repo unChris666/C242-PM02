@@ -215,14 +215,16 @@ export default function OutputPage() {
         const inputOverviewText = inputOverviewMatch ? inputOverviewMatch[1] : 'Input Overview not found';
         const problemStatementText = problemStatementMatch
           ? problemStatementMatch[1]
-              .replace(/"[^"]+":\s*"/g, '') // Remove keys
-              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"[^"]+":\s*"/g, '') // Remove keys
+          .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"/g, '') // Remove remaining quotes
           : 'Problem Statement not found';
 
         const objectivesText = objectiveMatch
           ? objectiveMatch[1]
-              .replace(/"[^"]+":\s*"/g, '') // Remove keys
-              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"[^"]+":\s*"/g, '') // Remove keys
+          .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"/g, '') // Remove remaining quotes
           : 'Objective not found';
 
         setInputOverview(inputOverviewText);
@@ -420,7 +422,7 @@ export default function OutputPage() {
             <tbody>
               {darciArray.map((item, index) => (
                 <tr key={index} className="odd:bg-gray-100">
-                  <td className="border border-gray-300 px-4 py-2 font-medium text-black">{item.Role}</td>
+                  <td className="border border-gray-300 px-4 py-2 font-medium text-black" contentEditable suppressContentEditableWarning>{item.Role}</td>
                   <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Tag}</td>
                   <td className="border border-gray-300 px-4 py-2">
                     <ul className="list-disc pl-5">

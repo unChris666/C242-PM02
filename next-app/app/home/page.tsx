@@ -20,7 +20,7 @@ function Home() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -35,14 +35,26 @@ function Home() {
     setIsFormValid(isComplete);
   }, [formData]);
 
-  const getBorderClass = (value) => {
+  const getBorderClass = (value: string) => {
     if (value === '') {
       return 'border-b-2 border-black focus:border-blue-500';
     }
     return 'border-b-2 border-green-500';
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogout = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    
+    const response = await axios.post('http://34.101.174.135:8080/api/v1/auth/logout');
+
+    console.log('Response:', response.data);
+
+    localStorage.removeItem('next-auth.session-token');
+
+    router.push('/login');
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isFormValid) {
       setLoading(true); // Set loading to true when form is submitted
@@ -85,11 +97,6 @@ function Home() {
         }
       }
     }
-  };
-
-  const handleLogout = () => {
-    // For now, just redirect to login page without any logic
-    router.push('/login');
   };
 
   return (
@@ -309,6 +316,14 @@ function Home() {
           </form>
         )}
       </div>
+      <div className='mx-auto w-1/2 text-center'>
+
+      <button
+                type="button"
+                onClick={() => handleLogout} 
+                className="w-1/2 py-3 px-6 mt-4 rounded-md bg-gray-300 text-gray-500 hover:bg-red-600 hover:text-white mx-auto"
+                >Log out</button>
+                </div>
     </div>
   );
 }
