@@ -11,6 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const isFilled = email && password;
+  const [message, setMessage] = useState('');
 
   const router = useRouter();
 
@@ -28,93 +29,88 @@ const Login = () => {
       router.push('/home');
     } else {
       console.error('Login failed:', result?.error);
+      setMessage(result?.error || 'Login failed');
     }
-    
   };
 
   return (
-
-    <div>
-      <h1 className='text-8xl text-center antialiased font-bold p-5 my-10 cursor-pointer mx-auto'>
-      Welcome to <span></span>
-      <span>
-        {Array.from("PRDify!").map((letter, index) => (
-          <span key={index} className="scale-up inline-block hover:-translate-y-5 hover:scale-150 transform transition duration-500 ease-in-out cursor-pointer">
-            {letter}
-          </span>
-        ))}
-      </span>
-    </h1>
-
-    
-    <div className="bg-slate-800 border border-slate-400 rounded-md p-8 shadow-lg backdrop-filter backdrop-blur-sm bg-opacity-25 relative w-1/3 mx-auto text-black my-20">
-      <h1 className="text-4xl font-bold text-center py-4 text-white">Login</h1>
-      <form onSubmit={handleSubmit}>
-        {/* Email */}
-        <div className="relative my-4">
-        <label
-            htmlFor="email"
-            className={`absolute text-xl duration-300 transform ${
-              email ? '-translate-y-4 scale-75 text-blue-600' : 'top-2 scale-100'
-            } left-0 text-slate-500 radius-xl`}
-          >
-            Email
-          </label>
-          <input
-            type="text"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)} // Update username state
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required // Mark as required
-          />
-          
-          <BiUser className="absolute top-2 right-0 text-white" />
-        </div>
-        {/* Password */}
-        <div className="relative my-4">
-        <label
-            htmlFor="password"
-            className={`text-xl absolute duration-300 transform ${
-              password ? '-translate-y-3 scale-75 text-blue-600' : 'top-2 scale-100'
-            } left-0 text-slate-500`}
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)} // Update password state
-            className="block w-full py-3 px-0 text-sm text-slate-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:text-white focus:border-blue-600"
-            required // Mark as required
-          />
-          
-          <AiOutlineUnlock className="absolute top-2 right-0 text-white" />
-        </div>
-        {/* Submit Button */}
-        <div className="my-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+      <h1 className="text-4xl font-extrabold mb-12 text-gray-800">
+        Welcome to <span className="text-blue-600">PRDify!</span>
+      </h1>
+  
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email */}
+          <div className="relative">
+            <label
+              htmlFor="email"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                email ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Email
+            </label>
+            <input
+              type="text"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Password */}
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className={`block text-sm font-medium text-gray-700 transition-all ${
+                password ? 'transform -translate-y-1.5 text-blue-600 text-xs' : 'text-base'
+              }`}
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full border-b-2 border-gray-300 py-2 focus:border-blue-500 focus:outline-none text-black"
+              required
+            />
+          </div>
+  
+          {/* Submit Button */}
           <button
-            className={`text-white text-xl py-2 px-4 rounded-md w-full ${
-              isFilled ? 'bg-blue-500' : 'bg-gray-500 cursor-not-allowed'
-            } rounded-xl`}
             type="submit"
-            disabled={!isFilled} // Disable button if fields are empty
+            disabled={!isFilled}
+            className={`w-full py-2 mt-4 rounded-md text-white font-semibold transition-colors ${
+              isFilled ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
             Login
           </button>
+  
+          <div className="text-center mt-4 text-sm text-gray-600">
+            New here?{' '}
+            <Link href="/register" className="text-blue-600 hover:underline">
+              Register
+            </Link>
+          </div>
+        </form>
+        {}
+      {message && (
+        <div className="mt-4 text-center text-red-600">
+          {message}
         </div>
-        <div className="my-4">
-        <span className='text-white'>
-            New here? <Link href="/register" className="text-blue-500">Register</Link>
-          </span>
-        </div>
-      </form>
+      )}
+      </div>
     </div>
-    </div>
-  );
+  );  
 };
 
 export default Login;

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import htmlDocx from 'html-docx-js/dist/html-docx';
+import { saveAs } from 'file-saver';
 
 export default function OutputPage() {
   const router = useRouter();
@@ -58,40 +60,105 @@ export default function OutputPage() {
     buttons.forEach(button => {
       (button as HTMLElement).style.display = 'none';
     });
-
+  
     const content = document.getElementById("downloadable-content");
     
-    // Capture the full height of the content
-    if (content) {
-      const canvas = await html2canvas(content, {
-        scale: 2,
-        scrollY: -window.scrollY,
-        useCORS: true
+    if (!content) {
+      // Restore buttons if content is not found
+      buttons.forEach(button => {
+        (button as HTMLElement).style.display = '';
       });
-      
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      
-      let remainingHeight = pdfHeight;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      while (remainingHeight > pageHeight) {
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, -(remainingHeight - pageHeight), pdfWidth, pdfHeight);
-        remainingHeight -= pageHeight;
+      return;
+    }
+  
+    // Capture the entire content as one large canvas
+    const canvas = await html2canvas(content, {
+      scale: 2,
+      scrollY: -window.scrollY,
+      useCORS: true
+    });
+  
+    const pdf = new jsPDF("p", "mm", "a4");
+    
+    // PDF page dimensions
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfPageHeight = pdf.internal.pageSize.getHeight();
+  
+    // Determine the ratio between the PDF width and the canvas width
+    const ratio = pdfWidth / canvas.width;
+  
+    // Calculate how much of the canvas height fits on one PDF page
+    const pageCanvasHeight = pdfPageHeight / ratio;
+  
+    let remainingHeight = canvas.height; 
+    let currentPage = 0;
+    let sourceY = 0;
+  
+    // Loop until we've processed all canvas height
+    while (remainingHeight > 0) {
+      // Create a temporary canvas to hold the current page portion
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = Math.min(pageCanvasHeight, remainingHeight);
+  
+      const pageCtx = pageCanvas.getContext("2d");
+      if (pageCtx) {
+        // Draw the portion of the main canvas for the current page
+        pageCtx.drawImage(
+          canvas,
+          0,
+          sourceY,
+          canvas.width,
+          pageCanvas.height,
+          0,
+          0,
+          canvas.width,
+          pageCanvas.height
+        );
+  
+        const pageImgData = pageCanvas.toDataURL("image/png");
+  
+        // If this is not the first page, add a new page to the PDF
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
+  
+        // Add the cropped image to the PDF
+        pdf.addImage(pageImgData, "PNG", 0, 0, pdfWidth, (pageCanvas.height * ratio));
       }
-      
-      pdf.save("product-requirements-document.pdf");
-
+  
+      // Move to the next portion
+      remainingHeight -= pageCanvasHeight;
+      sourceY += pageCanvasHeight;
+      currentPage++;
+    }
+  
+    // Save the PDF
+    pdf.save("product-requirements-document.pdf");
+  
     // Restore buttons after the PDF is generated
     buttons.forEach(button => {
       (button as HTMLElement).style.display = '';
     });
-  }
+  };
+  
+  const downloadDocx = () => {
+    const originalContent = document.getElementById("downloadable-content");
+    if (!originalContent) return;
+
+    // Clone the content so we can remove buttons without affecting the displayed page
+    const clone = originalContent.cloneNode(true) as HTMLElement;
+
+    // Remove all elements with the class "actions" from the clone
+    const actionElements = clone.querySelectorAll('.actions');
+    actionElements.forEach(el => el.remove());
+
+    // Now clone only has the main content without buttons
+    const html = clone.innerHTML;
+
+    // Convert to DOCX
+    const blob = htmlDocx.asBlob(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`);
+    saveAs(blob, 'product-requirements-document.docx');
   };
 
   const resetData = () => {
@@ -148,14 +215,16 @@ export default function OutputPage() {
         const inputOverviewText = inputOverviewMatch ? inputOverviewMatch[1] : 'Input Overview not found';
         const problemStatementText = problemStatementMatch
           ? problemStatementMatch[1]
-              .replace(/"[^"]+":\s*"/g, '') // Remove keys
-              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"[^"]+":\s*"/g, '') // Remove keys
+          .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"/g, '') // Remove remaining quotes
           : 'Problem Statement not found';
 
         const objectivesText = objectiveMatch
           ? objectiveMatch[1]
-              .replace(/"[^"]+":\s*"/g, '') // Remove keys
-              .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"[^"]+":\s*"/g, '') // Remove keys
+          .replace(/",?\s*$/, '') // Remove trailing commas or quotes
+          .replace(/"/g, '') // Remove remaining quotes
           : 'Objective not found';
 
         setInputOverview(inputOverviewText);
@@ -293,209 +362,238 @@ export default function OutputPage() {
 
 
   return (
-    <div id="downloadable-content" className="container w-11/12 mx-auto text-center p-4 bg-white">
-      <div className="header mb-4">
-        <h1 className="text-black text-4xl font-black text-center">
+    <div id="downloadable-content" className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Product Requirements Document
         </h1>
-      </div>
-
-      {/* Metadata */}
-      <div className="metadata mb-4 text-black">
-        <table className="table-auto mx-auto border-2 border-black w-1/2">
-          <tbody>
-            {metadata.map((item, index) => (
-              <tr key={index}>
-                <td className="border border-black px-4 py-2">{item.key}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>
-                  {item.value}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Overview */}
-      <div className="overview mb-4 text-black">
-        <h2 className="font-bold text-3xl mb-4">Overview</h2>
-        <p id="inputOverview" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
-          {inputOverview}
-        </p>
-        <h3 className="font-bold text-2xl mb-2">Problem Statement</h3>
-        <p id="problemStatement" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
-          {problemStatement}
-        </p>
-        <h3 className="font-bold text-2xl mb-2"> Objective</h3>
-        <p id="objectives" className="w-5/6 mx-auto" contentEditable suppressContentEditableWarning>
-          {objectives}
-        </p>
-      </div>
-
-      {/* DARCI Table */}
-      <div className="darci-table mb-4 text-black">
-            <h2 className="font-bold text-3xl mb-4">DARCI Table</h2>
-            <table className="table-auto mx-auto border-2 border-black w-5/6">
-                <thead>
-                    <tr>
-                        <th className="border border-black px-4 py-2">Role</th>
-                        <th className="border border-black px-4 py-2">Tag</th>
-                        <th className="border border-black px-4 py-2">Guidelines</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {darciArray.map((item, index) => (
-                        <tr key={index}>
-                            <td className="border border-black px-4 py-2">{item.Role}</td>
-                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Tag}</td>
-                            <td className="border border-black px-4 py-2">
-                                <ul>
-                                    {item.Guidelines.map((guideline, idx) => (
-                                        <li key={idx} contentEditable suppressContentEditableWarning>{guideline}</li>
-                                    ))}
-                                </ul>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="actions mt-4">
-                <button
-                    onClick={addDarciRow}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Add Row
-                </button>
-                <button
-                    onClick={deleteDarciLastRow}
-                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                    Delete Last Row
-                </button>
-            </div>
+  
+        {/* Metadata */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">Metadata</h2>
+          <table className="w-full border-collapse border border-gray-300 text-sm text-left">
+            <tbody>
+              {metadata.map((item, index) => (
+                <tr key={index} className="odd:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 font-medium text-black">{item.key}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>
+                    {item.value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-      {/* Project Timeline */}
-      <div className="project-timeline mb-4 text-black">
-            <h2 className="font-bold text-3xl mb-4">Project Timeline</h2>
-            <table className="table-auto mx-auto border-2 border-black w-5/6">
-                <thead>
-                    <tr>
-                        <th className="border border-black px-4 py-2">Time Period</th>
-                        <th className="border border-black px-4 py-2">Activity</th>
-                        <th className="border border-black px-4 py-2">PIC</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {projectTimelineArray.map((item, index) => (
-                        <tr key={index}>
-                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.TimePeriod}</td>
-                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Activity}</td>
-                            <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.PIC}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="actions mt-4">
-                <button
-                    onClick={addProjectTimelineRow}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Add Row
-                </button>
-                <button
-                    onClick={deleteProjectTimelineLastRow}
-                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                    Delete Last Row
-                </button>
-            </div>
+  
+        {/* Overview */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">Overview</h2>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-black mb-1">Input Overview</label>
+            <p className="w-full border border-gray-300 rounded-md p-3 bg-gray-50 text-black" contentEditable suppressContentEditableWarning>
+              {inputOverview}
+            </p>
+          </div>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-black mb-1">Problem Statement</label>
+            <p className="w-full border border-gray-300 rounded-md p-3 bg-gray-50 text-black" contentEditable suppressContentEditableWarning>
+              {problemStatement}
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-black mb-1">Objective</label>
+            <p className="w-full border border-gray-300 rounded-md p-3 bg-gray-50 text-black" contentEditable suppressContentEditableWarning>
+              {objectives}
+            </p>
+          </div>
         </div>
-
-      {/* Success Metrics */}
-      <div className="success-metrics mb-4 text-black">
-        <h2 className="font-bold text-3xl mb-4">Success Metrics</h2>
-        <table className="table-auto mx-auto border-2 border-black w-5/6">
-          <thead>
-            <tr>
-              <th className="border border-black px-4 py-2" >Metric</th>
-              <th className="border border-black px-4 py-2" >Definition</th>
-              <th className="border border-black px-4 py-2" >Actual</th>
-              <th className="border border-black px-4 py-2" >Target</th>
-            </tr>
-          </thead>
-          <tbody>
-            {successMetricsArray.map((item, index) => (
-              <tr key={index}>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Metric}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Definition}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Actual}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Target}</td>
+  
+        {/* DARCI Table */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">DARCI Table</h2>
+          <table className="w-full border-collapse border border-gray-300 text-sm text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-black">Role</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Tag</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Guidelines</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="actions mt-4">
-                <button
-                    onClick={addSuccessMetricsRow}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Add Row
-                </button>
-                <button
-                    onClick={deleteSuccessMetricsLastRow}
-                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                    Delete Last Row
-                </button>
-            </div>
-      </div>
-
-      {/* User Stories */}
-      <div className="user-stories mb-4 text-black">
-        <h2 className="font-bold text-3xl mb-4">User  Stories</h2>
-        <table className="table-auto mx-auto border-2 border-black w-5/6">
-          <thead>
-            <tr>
-              <th className="border border-black px-4 py-2">Title</th>
-              <th className="border border-black px-4 py-2">User  Story</th>
-              <th className="border border-black px-4 py-2">Acceptance Criteria</th>
-              <th className="border border-black px-4 py-2">Priority</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userStoriesArray.map((item, index) => (
-              <tr key={index}>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Title}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.UserStory}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.AcceptanceCriteria}</td>
-                <td className="border border-black px-4 py-2" contentEditable suppressContentEditableWarning>{item.Priority}</td>
+            </thead>
+            <tbody>
+              {darciArray.map((item, index) => (
+                <tr key={index} className="odd:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 font-medium text-black" contentEditable suppressContentEditableWarning>{item.Role}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Tag}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <ul className="list-disc pl-5">
+                      {item.Guidelines.map((guideline, idx) => (
+                        <li key={idx} className="text-black" contentEditable suppressContentEditableWarning>{guideline}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center mt-4 gap-4 actions">
+            <button
+              onClick={addDarciRow}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Row
+            </button>
+            <button
+              onClick={deleteDarciLastRow}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete Last Row
+            </button>
+          </div>
+        </div>
+  
+        {/* Project Timeline */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">Project Timeline</h2>
+          <table className="w-full border-collapse border border-gray-300 text-sm text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-black">Time Period</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Activity</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">PIC</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="actions mt-4">
-                <button
-                    onClick={addUserStoriesRow}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Add Row
-                </button>
-                <button
-                    onClick={deleteUserStoriesLastRow}
-                    className="mt-2 ml-2 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                    Delete Last Row
-                </button>
-            </div>
-      </div>
-
-      {/* Download Button */}
-      <div className="download-button mt-4 actions">
-        <button onClick={downloadContent} className="px-4 py-2 bg-green-500 text-white rounded">Download PDF</button>
-        <button onClick={resetData} className="ml-2 px-4 py-2 bg-orange-500 text-white rounded">Reset Data</button>
-        <button onClick={returnToHome} className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">Return to Home</button>
+            </thead>
+            <tbody>
+              {projectTimelineArray.map((item, index) => (
+                <tr key={index} className="odd:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.TimePeriod}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Activity}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.PIC}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center mt-4 gap-4 actions">
+            <button
+              onClick={addProjectTimelineRow}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Row
+            </button>
+            <button
+              onClick={deleteProjectTimelineLastRow}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete Last Row
+            </button>
+          </div>
+        </div>
+  
+        {/* Success Metrics */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">Success Metrics</h2>
+          <table className="w-full border-collapse border border-gray-300 text-sm text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-black">Metric</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Definition</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Actual</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Target</th>
+              </tr>
+            </thead>
+            <tbody>
+              {successMetricsArray.map((item, index) => (
+                <tr key={index} className="odd:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Metric}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Definition}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Actual}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Target}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center mt-4 gap-4 actions">
+            <button
+              onClick={addSuccessMetricsRow}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Row
+            </button>
+            <button
+              onClick={deleteSuccessMetricsLastRow}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete Last Row
+            </button>
+          </div>
+        </div>
+  
+        {/* User Stories */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-black mb-4">User Stories</h2>
+          <table className="w-full border-collapse border border-gray-300 text-sm text-left">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-black">Title</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">User Story</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Acceptance Criteria</th>
+                <th className="border border-gray-300 px-4 py-2 text-black">Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userStoriesArray.map((item, index) => (
+                <tr key={index} className="odd:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Title}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.UserStory}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.AcceptanceCriteria}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Priority}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center mt-4 gap-4 actions">
+            <button
+              onClick={addUserStoriesRow}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Row
+            </button>
+            <button
+              onClick={deleteUserStoriesLastRow}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Delete Last Row
+            </button>
+          </div>
+        </div>
+  
+        {/* Actions */}
+        <div className="text-center mt-8 actions">
+          <button
+            onClick={downloadContent}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Download PDF
+          </button>
+          <button
+            onClick={downloadDocx}
+            className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Download DOCX
+          </button>
+          <button
+            onClick={resetData}
+            className="ml-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          >
+            Reset Data
+          </button>
+          <button
+            onClick={returnToHome}
+            className="ml-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+          >
+            Return to Home
+          </button>
+        </div>
       </div>
     </div>
-  );
+  );  
 }

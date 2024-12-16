@@ -12,10 +12,11 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const isFilled = username && email && password && confirmPassword; // Check if all fields are filled
-  const isEmailValid = email.includes('@') && email.includes('.'); // Check if email is valid
-  const isPasswordMatch = password === confirmPassword; // Check if password matches confirm password
+  const isFilled = username && email && password && confirmPassword; 
+  const isEmailValid = email.includes('@') && email.includes('.'); 
+  const isPasswordMatch = password === confirmPassword;
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -25,9 +26,9 @@ const Register = () => {
 
       const result = await axios.post('http://34.101.174.135:8080/api/v1/auth/register', {
         "name": username,
-    "email": email,
-    "password": password,
-    "passwordConfirm": confirmPassword
+        "email": email,
+        "password": password,
+        "passwordConfirm": confirmPassword
       });
 
       console.log('Registration result:', result.data);
@@ -35,9 +36,8 @@ const Register = () => {
     }
     catch (error) {
       console.error('Registration failed:', error);
+      setMessage('Registration failed. Please try again.');
     }
-
-    
   };
 
   return (
@@ -145,6 +145,11 @@ const Register = () => {
             </Link>
           </div>
         </form>
+        {message && (
+          <div className="mt-4 text-center text-red-600">
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );  
