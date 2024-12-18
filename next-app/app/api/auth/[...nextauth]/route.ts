@@ -1,9 +1,8 @@
-// [...nextauth]/route.ts
-import NextAuth, { type NextAuthOptions } from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import axios from 'axios';
-import { NextResponse } from 'next/server';
 
+// Define the NextAuth options
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
@@ -12,14 +11,8 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: {
-          label: 'Email',
-          type: 'text',
-        },
-        password: {
-          label: 'Password',
-          type: 'password',
-        },
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         try {
@@ -27,13 +20,9 @@ export const authOptions: NextAuthOptions = {
             email: credentials?.email,
             password: credentials?.password,
           });
-      
-          console.log('API Response:', response.data);
-      
+
           if (response.data.status === 'success') {
             const { user, token } = response.data.data;
-      
-            console.log('User:', user);
             return {
               id: user.id,
               name: user.name,
@@ -41,16 +30,10 @@ export const authOptions: NextAuthOptions = {
               role: user.role_id,
               token,
             };
-          } else {
-            console.error('Invalid status in response:', response.data.status);
-            return null;
           }
+          return null;
         } catch (error) {
-          if (axios.isAxiosError(error)) {
-            console.error('Login failed:', error.response?.data || error.message);
-          } else {
-            console.error('Login failed:', (error as Error).message);
-          }
+          console.error('Login failed:', error);
           return null;
         }
       },
@@ -58,7 +41,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }: { token: any; user: any }) {
-      // Attach token and user data to JWT
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -69,7 +51,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      // Attach JWT token data to session
       session.user = {
         id: token.id,
         name: token.name,
@@ -79,8 +60,17 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken;
       return session;
     },
+    async redirect({ url }) {
+      const baseUrl = 'https://3002-cs-239652182010-default.cs-asia-southeast1-ajrg.cloudshell.dev';
+      if (url.startsWith('/api/auth/signout')) {
+         return baseUrl;
+      }
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
   },
 };
 
+// Create and export the route handler for GET and POST
 const handler = NextAuth(authOptions);
+
 export { handler as GET, handler as POST };

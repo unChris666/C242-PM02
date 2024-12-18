@@ -19,12 +19,7 @@
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",
-<<<<<<< HEAD
     "lodash": "^4.17.21",
-=======
-    "jszip": "^3.10.1",
-    "lodash.merge": "^4.6.2",
->>>>>>> ca84d8e8bf524ffde27d91f7b806d4fca7987b09
     "next": "15.1.0",
     "next-auth": "^4.24.11",
     "path-to-regexp": "^8.2.0",
@@ -34,10 +29,7 @@
     "react-router-dom": "^7.0.2"
   },
   "devDependencies": {
-<<<<<<< HEAD
-=======
     "@types/file-saver": "^2.0.7",
->>>>>>> ca84d8e8bf524ffde27d91f7b806d4fca7987b09
     "@types/html-docx-js": "^0.3.4",
     "@types/node": "^20",
     "@types/react": "^19.0.1",

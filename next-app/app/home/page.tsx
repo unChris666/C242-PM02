@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import axios from 'axios';
 
 function Home() {
@@ -42,16 +43,14 @@ function Home() {
     return 'border-b-2 border-green-500';
   };
 
-  const handleLogout = async (e: { preventDefault: () => void; }) => {
+  const handleLogout = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    
-    const response = await axios.post('http://34.101.174.135:8080/api/v1/auth/logout');
-
-    console.log('Response:', response.data);
-
-    localStorage.removeItem('next-auth.session-token');
-
-    router.push('/login');
+  
+    try {
+      await signOut({ callbackUrl: '/' }); // Redirect to the homepage after logout
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -316,14 +315,6 @@ function Home() {
           </form>
         )}
       </div>
-      <div className='mx-auto w-1/2 text-center'>
-
-      <button
-                type="button"
-                onClick={() => handleLogout} 
-                className="w-1/2 py-3 px-6 mt-4 rounded-md bg-gray-300 text-gray-500 hover:bg-red-600 hover:text-white mx-auto"
-                >Log out</button>
-                </div>
     </div>
   );
 }

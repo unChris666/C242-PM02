@@ -242,37 +242,35 @@ export default function OutputPage() {
               Tag: string;
               Guidelines: string[];
           }
-
-          const extractDARCIValues = (role : string): DARCIItem[] => {
+  
+          const extractDARCIValues = (): DARCIItem[] => {
               const darciArray: DARCIItem[] = [];
-              const regex = new RegExp(`"${role}":\\s*{\\s*"Tag":\\s*"([^"]+)",\\s*"Guidelines":\\s*\\[(.*?)\\]\\s*}`, 'gs');
+              const regex = /\{\s*\"Role\":\s*\"(.*?)\",\s*\"Tag\":\s*\"(.*?)\",\s*\"Guidelines\":\s*\"(.*?)\"\s*\}/gs;
               let match: RegExpExecArray | null;
+  
               while ((match = regex.exec(outputText)) !== null) {
-                  const tag = match[1];
-                  const guidelines = match[2].split(/,\s*(?=")/).map(g => g.replace(/"/g, '').trim());
+                  const role = match[1];
+                  const tag = match[2];
+                  const guidelines = match[3].split('\\n').map(g => g.trim()); // Split by newlines and trim each guideline
+  
                   darciArray.push({
                       Role: role,
                       Tag: tag,
                       Guidelines: guidelines
                   });
               }
+  
               return darciArray;
           };
-
-          const roles = ["Decision Maker", "Accountable", "Responsible", "Consulted", "Informed"];
-          const extractedDarciArray: DARCIItem[] = [];
-
-          roles.forEach(role => {
-              const roleData = extractDARCIValues(role);
-              extractedDarciArray.push(...roleData);
-          });
-
+  
+          const extractedDarciArray = extractDARCIValues();
+  
           setDarciArray(extractedDarciArray);
           console.log('Updated darciArray:', extractedDarciArray); // Debugging statement
       } catch (error) {
           console.error('Error processing DARCI Table data:', error);
       }
-    }
+  }
     // Extract Project Timeline
     if (outputText) {
       const extractValues = (pattern: RegExp): string[] => {
@@ -424,7 +422,7 @@ export default function OutputPage() {
                 <tr key={index} className="odd:bg-gray-100">
                   <td className="border border-gray-300 px-4 py-2 font-medium text-black" contentEditable suppressContentEditableWarning>{item.Role}</td>
                   <td className="border border-gray-300 px-4 py-2 text-black" contentEditable suppressContentEditableWarning>{item.Tag}</td>
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border border-gray-300 px-4 py-2" contentEditable suppressContentEditableWarning>
                     <ul className="list-disc pl-5">
                       {item.Guidelines.map((guideline, idx) => (
                         <li key={idx} className="text-black" contentEditable suppressContentEditableWarning>{guideline}</li>
