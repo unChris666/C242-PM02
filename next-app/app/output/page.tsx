@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import htmlDocx from 'html-docx-js/dist/html-docx';
-import { saveAs } from 'file-saver';
+// import htmlDocx from 'html-docx-js/dist/html-docx';
+// import { saveAs } from 'file-saver';
 
 export default function OutputPage() {
   const router = useRouter();
@@ -142,24 +142,24 @@ export default function OutputPage() {
     });
   };
   
-  const downloadDocx = () => {
-    const originalContent = document.getElementById("downloadable-content");
-    if (!originalContent) return;
+  // const downloadDocx = () => {
+  //   const originalContent = document.getElementById("downloadable-content");
+  //   if (!originalContent) return;
 
-    // Clone the content so we can remove buttons without affecting the displayed page
-    const clone = originalContent.cloneNode(true) as HTMLElement;
+  //   // Clone the content so we can remove buttons without affecting the displayed page
+  //   const clone = originalContent.cloneNode(true) as HTMLElement;
 
-    // Remove all elements with the class "actions" from the clone
-    const actionElements = clone.querySelectorAll('.actions');
-    actionElements.forEach(el => el.remove());
+  //   // Remove all elements with the class "actions" from the clone
+  //   const actionElements = clone.querySelectorAll('.actions');
+  //   actionElements.forEach(el => el.remove());
 
-    // Now clone only has the main content without buttons
-    const html = clone.innerHTML;
+  //   // Now clone only has the main content without buttons
+  //   const html = clone.innerHTML;
 
-    // Convert to DOCX
-    const blob = htmlDocx.asBlob(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`);
-    saveAs(blob, 'product-requirements-document.docx');
-  };
+  //   // Convert to DOCX
+  //   const blob = htmlDocx.asBlob(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`);
+  //   saveAs(blob, 'product-requirements-document.docx');
+  // };
 
   const resetData = () => {
     // Reset all state variables to their initial values
@@ -245,7 +245,7 @@ export default function OutputPage() {
   
           const extractDARCIValues = (): DARCIItem[] => {
               const darciArray: DARCIItem[] = [];
-              const regex = /\{\s*\"Role\":\s*\"(.*?)\",\s*\"Tag\":\s*\"(.*?)\",\s*\"Guidelines\":\s*\"(.*?)\"\s*\}/gs;
+              const regex = /\{\s*\"Role\":\s*\"(.*?)\",\s*\"Tag\":\s*\"(.*?)\",\s*\"Guidelines\":\s*\"(.*?)\"\s*\}/g;
               let match: RegExpExecArray | null;
   
               while ((match = regex.exec(outputText)) !== null) {
@@ -572,12 +572,12 @@ export default function OutputPage() {
           >
             Download PDF
           </button>
-          <button
+          {/* <button
             onClick={downloadDocx}
             className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Download DOCX
-          </button>
+          </button> */}
           <button
             onClick={resetData}
             className="ml-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
