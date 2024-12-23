@@ -22,7 +22,7 @@ To get started with **PRD Maker** locally, follow these steps:
 ### Frontend (Next.js)
 1. Clone the repository:
    ```bash
-   git clone https:github.comunChris666C242-PM02.git
+   git clone https://github.com/unChris666/C242-PM02.git
    ```
 
 2. Navigate to the **`next-app`** folder:
@@ -40,7 +40,7 @@ To get started with **PRD Maker** locally, follow these steps:
    npm run dev
    ```
 
-   The frontend should now be running at `http:localhost:3000`.
+   The frontend should now be running at `http://localhost:3000`.
 
 ---
 
@@ -60,7 +60,7 @@ To get started with **PRD Maker** locally, follow these steps:
    npm run dev
    ```
 
-   The backend should now be running at `http:localhost:5000`.
+   The backend should now be running at `http://localhost:5000`.
 
 ---
 
