@@ -142,6 +142,7 @@ export default function OutputPage() {
     });
   };
   
+  // Download Functionality for DOCX
   // const downloadDocx = () => {
   //   const originalContent = document.getElementById("downloadable-content");
   //   if (!originalContent) return;
